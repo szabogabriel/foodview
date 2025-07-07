@@ -14,11 +14,12 @@ const SCHEMA_META_TABLE_NAME = "schema_meta"
 const CURRENT_VERSION = 1
 
 type dbtable interface {
-	InitTable(db *sql.DB, targetVersion int)
+	InitTable(targetVersion int)
 }
 
 var DB_TABLES = []dbtable{
-	Unit{},
+	UnitEntity{},
+	FoodEntity{},
 }
 
 func Connect() {
@@ -27,6 +28,8 @@ func Connect() {
 	initDatabase()
 
 	updateDatabase()
+
+	setSchemaVersion(CURRENT_VERSION)
 }
 
 func tableExists(name string) (bool, error) {
@@ -102,7 +105,7 @@ func updateDatabase() {
 		fmt.Println("Updating database schema to version", CURRENT_VERSION)
 		for _, table := range DB_TABLES {
 			for i := version + 1; i <= CURRENT_VERSION; i++ {
-				table.InitTable(DB, i)
+				table.InitTable(i)
 			}
 		}
 
